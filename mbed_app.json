@@ -1,0 +1,28 @@
+{
+    "target_overrides": {
+        "*": {
+            "nanostack.configuration"                   : "lowpan_router",
+            "target.network-default-interface-type"     : "MESH",
+            "target.device_has_add"                     : ["802_15_4_PHY"],
+            "nsapi.default-mesh-type"                   : "LOWPAN",
+            "mbed-mesh-api.6lowpan-nd-channel"          : 12,
+            "mbed-mesh-api.6lowpan-nd-channel-page"     : 0,
+            "mbed-mesh-api.6lowpan-nd-security-mode"    : "PSK",
+            "mbed-mesh-api.6lowpan-nd-psk-key"          : "{0x43, 0x41, 0x54, 0x49, 0x45, 0x2d, 0x36, 0x74, 0x72, 0x6f, 0x6e, 0x2d, 0x32, 0x30, 0x31, 0x37}",
+            "atmel-rf.provide-default"                  : true,
+            "mbed-mqtt.max-connections"                 : "5",
+            "mbed-mqtt.max-packet-size"                 : "1024"
+        },
+        "ZEST_CORE_STM32L4A6RG": {
+            "atmel-rf.SPI_MOSI"                         : "SPI_MOSI",
+            "atmel-rf.SPI_MISO"                         : "SPI_MISO",
+            "atmel-rf.SPI_SCLK"                         : "SPI_SCK",
+            "atmel-rf.SPI_CS"                           : "SPI_CS",
+            "atmel-rf.SPI_RST"                          : "DIO1",
+            "atmel-rf.SPI_SLP"                          : "DIO2",
+            "atmel-rf.SPI_IRQ"                          : "DIO3",
+            "atmel-rf.I2C_SDA"                          : "I2C_SDA",
+            "atmel-rf.I2C_SCL"                          : "I2C_SCL"
+        }
+    }
+}

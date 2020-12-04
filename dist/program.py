@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # Copyright (c) 2017, CATIE, All Rights Reserved
 # SPDX-License-Identifier: Apache-2.0
@@ -53,9 +53,9 @@ if args.probe == "j-link":
     ret = os.system(cmd)
     if ret != 0:
         if os.name == 'nt':
-            print "Error when calling J-Link executable. Please verify that JLink.exe has been added to the PATH"
+            print("Error when calling J-Link executable. Please verify that JLink.exe has been added to the PATH")
         elif os.name == 'posix':
-            print "Error when calling J-Link executable. Please verify that JLinkEXE has been added to the PATH"
+            print("Error when calling J-Link executable. Please verify that JLinkEXE has been added to the PATH")
 
     os.remove(command_path)
 
@@ -71,21 +71,21 @@ if args.probe == "st-link":
         ret = os.system(cmd)
         if ret != 0:
             if os.name == 'nt':
-                print "Error when calling OpenOCD executable. Please verify that openocd.exe has been added to the PATH"
+                print("Error when calling OpenOCD executable. Please verify that openocd.exe has been added to the PATH")
             elif os.name == 'posix':
-                print "Error when calling OpenOCD executable. Please verify that openocd has been added to the PATH"
+                print("Error when calling OpenOCD executable. Please verify that openocd has been added to the PATH")
 
     else:  # use the config file of the project
-        print "Unknown device, using openocd.cfg configuration file of the project"
+        print("Unknown device, using openocd.cfg configuration file of the project")
 
         # Flash target
         cmd = 'openocd -f openocd.cfg -c "program {} verify reset exit"'.format(elf_path)
         ret = os.system(cmd)
         if ret != 0:
             if os.name == 'nt':
-                print "Error when calling OpenOCD executable. Please verify that openocd.exe has been added to the PATH"
+                print("Error when calling OpenOCD executable. Please verify that openocd.exe has been added to the PATH")
             elif os.name == 'posix':
-                print "Error when calling OpenOCD executable. Please verify that openocd has been added to the PATH"
-       	print
+                print("Error when calling OpenOCD executable. Please verify that openocd has been added to the PATH")
+        print()
 
 
