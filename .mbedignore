@@ -1,0 +1,9 @@
+mbed-os/components/wifi/*
+mbed-os/features/cellular/*
+mbed-os/features/netsocket/cellular/*
+mbed-os/features/lorawan/*
+mbed-os/features/lwipstack/*
+mbed-os/features/nfc/*
+mbed-os/features/storage/system_storage/*
+mbed-os/features/storage/nvstore/*
+mbed-os/usb/*
