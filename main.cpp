@@ -19,18 +19,107 @@
 #include <MQTTClientMbedOs.h>
 
 namespace {
-#define MQTT_TOPIC "/estia/group1"
+#define MQTT_TOPIC_PUBLISH      "/estia/group1/uplink"
+#define MQTT_TOPIC_SUBSCRIBE    "/estia/group1/downlink"
+#define SYNC_INTERVAL           1
 }
 
-NetworkInterface *network;
+// Peripherals
 static DigitalOut led(LED1);
+static InterruptIn sw(BUTTON1);
+
+// Network 
+NetworkInterface *network;
+MQTTClient *client;
+
+// MQTT
+const char* hostname = "fd9f:590a:b158::1";
+int port = 1883;
+
+// Error code
+nsapi_size_or_error_t rc = 0;
+
+// Event queue
+static int id_yield;
+EventQueue *main_queue = mbed_event_queue();
+
+/*!
+ *  \brief Called when a message is received
+ *
+ *  Print messages received on mqtt topic
+ */
+void messageArrived(MQTT::MessageData& md)
+{
+    MQTT::Message &message = md.message;
+    printf("Message arrived: qos %d, retained %d, dup %d, packetid %d\r\n", message.qos, message.retained, message.dup, message.id);
+    printf("Payload %.*s\r\n", message.payloadlen, (char*)message.payload);
+    
+    // Get the payload string
+    char* char_payload = (char*)malloc((message.payloadlen+1)*sizeof(char));
+    char_payload = (char *) message.payload;
+    char_payload[message.payloadlen] = '\0'; // String must be null terminated
+
+    if (strcmp(char_payload, "ON") == 0) {
+        led = 1;
+    }
+    else if (strcmp(char_payload, "OFF") == 0) {
+        led = 0;
+    }
+    else if (strcmp(char_payload, "RESET") == 0) {
+        printf("RESETTING ...\n");
+        system_reset();
+    }
+}
+
+/*!
+ *  \brief Yield to the MQTT client
+ *
+ *  On error, stop publishing and yielding
+ */
+static void yield(){
+    rc = client->yield(100);
+
+    if (rc != 0){
+        printf("Yield error: %d\n", rc);
+        main_queue->cancel(id_yield);
+        main_queue->break_dispatch();
+        system_reset();
+    }
+}
+
+/*!
+ *  \brief Publish data over the corresponding adafruit MQTT topic
+ *
+ */
+static int8_t publish() {
+    /* Create MQTT Message */
+    MQTTPacket_connectData data;
+    data.MQTTVersion = 3;
+    data.clientID.cstring = (char *)"6LoWPAN_Node";
+    client->connect(data);
+
+    char *mqttPayload = "Hello from 6TRON";
+
+    MQTT::Message message;
+    message.qos = MQTT::QOS1;
+    message.retained = false;
+    message.dup = false;
+    message.payload = (void*)mqttPayload;
+    message.payloadlen = strlen(mqttPayload);
+
+    printf("Send: %s to MQTT Broker: %s\n", mqttPayload, hostname);
+    rc = client->publish(MQTT_TOPIC_PUBLISH, message); 
+    if (rc != 0) {
+        printf("Failed to publish: %d\n", rc);
+        return rc;
+    }
+    return 0;
+}
 
 // main() runs in its own thread in the OS
 // (note the calls to ThisThread::sleep_for below for delays)
 int main()
 {
-    nsapi_size_or_error_t retcode;
-
 	printf("Connecting to border router...\n");
 
     /* Get Network configuration */
@@ -49,10 +138,10 @@ int main()
     nsapi_dns_add_server(new_dns, "LOWPAN");
 
     /* Border Router connection */
-    retcode = network->connect();
-    if (retcode != 0) {
-        printf("Error! net->connect() returned: %d\n", retcode);
-        return retcode;
+    rc = network->connect();
+    if (rc != 0) {
+        printf("Error! net->connect() returned: %d\n", rc);
+        return rc;
     }
 
     /* Print IP address */
@@ -62,39 +151,36 @@ int main()
 
     /* Open TCP Socket */
     TCPSocket socket;
-    const char* hostname = "fd9f:590a:b158::1";
-    int port = 1883;
 
     /* MQTT Connection */
-    MQTTClient client(&socket);
+    client = new MQTTClient(&socket);
     socket.open(network);
-    int ret = socket.connect(hostname, port);
-    if(ret != 0){
+    rc = socket.connect(hostname, port);
+    if(rc != 0){
         printf("Connection to MQTT broker Failed");
-        return 0;
+        return rc;
     }
 
-    /* MQTT Publish */
-    MQTTPacket_connectData data;
-    data.MQTTVersion = 3;
-    data.clientID.cstring = (char *)"6LoWPAN_Node";
-    client.connect(data);
+    MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
+    data.MQTTVersion = 4;
+    data.keepAliveInterval = 25;
+    data.clientID.cstring = "6LoWPAN_Node";
+    if (client->connect(data) != 0){
+        printf("Connection to MQTT Broker Failed\n");
+    }   
 
-    /* Create MQTT Message */
-    char *mqttPayload = "Hello from 6TRON";
+    /* MQTT Subscribe */
+    if ((rc = client->subscribe(MQTT_TOPIC_SUBSCRIBE, MQTT::QOS0, messageArrived)) != 0){
+        printf("rc from MQTT subscribe is %d\r\n", rc);
+    }    
 
-    MQTT::Message message;
-    message.qos = MQTT::QOS1;
-    message.retained = false;
-    message.dup = false;
-    message.payload = (void*)mqttPayload;
-    message.payloadlen = strlen(mqttPayload);
+    yield();
 
-    int8_t rc = 0;
+    // Yield every 1 second
+    id_yield = main_queue->call_every(SYNC_INTERVAL * 1000, yield);
 
-    while(1){
-        printf("Send: %s to MQTT Broker: %s\n", mqttPayload, hostname);
-        rc = client.publish(MQTT_TOPIC, message); 
-        ThisThread::sleep_for(5000);
-    }
+    // Publish
+    sw.fall(main_queue->event(publish));
+
+    main_queue->dispatch_forever();
 }
