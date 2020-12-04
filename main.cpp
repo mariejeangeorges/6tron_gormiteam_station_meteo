@@ -34,6 +34,7 @@ MQTTClient *client;
 
 // MQTT
 const char* hostname = "fd9f:590a:b158::1";
+// const char* hostname = "broker.hivemq.com";
 int port = 1883;
 
 // Error code
@@ -120,7 +121,7 @@ static int8_t publish() {
 // (note the calls to ThisThread::sleep_for below for delays)
 int main()
 {
-	printf("Connecting to border router...\n");
+    printf("Connecting to border router...\n");
 
     /* Get Network configuration */
     network = NetworkInterface::get_default_instance();
