@@ -18,9 +18,9 @@
             "atmel-rf.SPI_MISO"                         : "SPI_MISO",
             "atmel-rf.SPI_SCLK"                         : "SPI_SCK",
             "atmel-rf.SPI_CS"                           : "SPI_CS",
-            "atmel-rf.SPI_RST"                          : "DIO1",
+            "atmel-rf.SPI_RST"                          : "PWM3_OUT",
             "atmel-rf.SPI_SLP"                          : "DIO2",
-            "atmel-rf.SPI_IRQ"                          : "DIO3",
+            "atmel-rf.SPI_IRQ"                          : "PWM1_OUT",
             "atmel-rf.I2C_SDA"                          : "I2C_SDA",
             "atmel-rf.I2C_SCL"                          : "I2C_SCL"
         }
