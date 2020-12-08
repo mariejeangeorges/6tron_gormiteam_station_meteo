@@ -26,7 +26,7 @@ namespace {
 
 // Peripherals
 static DigitalOut led(LED1);
-static InterruptIn sw(BUTTON1);
+static InterruptIn button(BUTTON1);
 
 // Network 
 NetworkInterface *network;
@@ -181,7 +181,7 @@ int main()
     id_yield = main_queue->call_every(SYNC_INTERVAL * 1000, yield);
 
     // Publish
-    sw.fall(main_queue->event(publish));
+    button.fall(main_queue->event(publish));
 
     main_queue->dispatch_forever();
 }
