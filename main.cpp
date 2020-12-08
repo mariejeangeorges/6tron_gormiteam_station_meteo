@@ -33,8 +33,8 @@ NetworkInterface *network;
 MQTTClient *client;
 
 // MQTT
-const char* hostname = "fd9f:590a:b158::1";
-// const char* hostname = "broker.hivemq.com";
+//const char* hostname = "fd9f:590a:b158::1";
+const char* hostname = "broker.hivemq.com";
 int port = 1883;
 
 // Error code
