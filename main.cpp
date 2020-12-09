@@ -93,11 +93,6 @@ static void yield(){
  *
  */
 static int8_t publish() {
-    /* Create MQTT Message */
-    MQTTPacket_connectData data;
-    data.MQTTVersion = 3;
-    data.clientID.cstring = (char *)"6LoWPAN_Node";
-    client->connect(data);
 
     char *mqttPayload = "Hello from 6TRON";
 
