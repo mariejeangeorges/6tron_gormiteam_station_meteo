@@ -22,6 +22,7 @@ namespace {
 #define MQTT_TOPIC_PUBLISH      "/estia/group1/uplink"
 #define MQTT_TOPIC_SUBSCRIBE    "/estia/group1/downlink"
 #define SYNC_INTERVAL           1
+#define MQTT_CLIENT_ID          "6LoWPAN_Node"
 }
 
 // Peripherals
@@ -160,7 +161,7 @@ int main()
     MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
     data.MQTTVersion = 4;
     data.keepAliveInterval = 25;
-    data.clientID.cstring = "6LoWPAN_Node";
+    data.clientID.cstring = MQTT_CLIENT_ID;
     if (client->connect(data) != 0){
         printf("Connection to MQTT Broker Failed\n");
     }   
