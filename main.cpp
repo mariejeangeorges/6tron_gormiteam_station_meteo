@@ -43,7 +43,7 @@ nsapi_size_or_error_t rc = 0;
 
 // Event queue
 static int id_yield;
-EventQueue *main_queue = mbed_event_queue();
+static EventQueue main_queue(32 * EVENTS_EVENT_SIZE);
 
 /*!
  *  \brief Called when a message is received
@@ -83,8 +83,8 @@ static void yield(){
 
     if (rc != 0){
         printf("Yield error: %d\n", rc);
-        main_queue->cancel(id_yield);
-        main_queue->break_dispatch();
+        main_queue.cancel(id_yield);
+        main_queue.break_dispatch();
         system_reset();
     }
 }
@@ -174,10 +174,10 @@ int main()
     yield();
 
     // Yield every 1 second
-    id_yield = main_queue->call_every(SYNC_INTERVAL * 1000, yield);
+    id_yield = main_queue.call_every(SYNC_INTERVAL * 1000, yield);
 
     // Publish
-    button.fall(main_queue->event(publish));
+    button.fall(main_queue.event(publish));
 
-    main_queue->dispatch_forever();
+    main_queue.dispatch_forever();
 }
