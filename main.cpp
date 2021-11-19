@@ -115,6 +115,7 @@ static int8_t publish() {
 
 // main() runs in its own thread in the OS
 // (note the calls to ThisThread::sleep_for below for delays)
+
 int main()
 {
     printf("Connecting to border router...\n");
@@ -149,7 +150,7 @@ int main()
     /* Open TCP Socket */
     TCPSocket socket;
     SocketAddress address;
-    err = network->gethostbyname(hostname, &address);
+    network->gethostbyname(hostname, &address);
     address.set_port(port);
 
     /* MQTT Connection */
