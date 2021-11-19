@@ -11,18 +11,20 @@
             "mbed-mesh-api.6lowpan-nd-psk-key"          : "{0x43, 0x41, 0x54, 0x49, 0x45, 0x2d, 0x36, 0x74, 0x72, 0x6f, 0x6e, 0x2d, 0x32, 0x30, 0x31, 0x37}",
             "atmel-rf.provide-default"                  : true,
             "mbed-mqtt.max-connections"                 : "5",
-            "mbed-mqtt.max-packet-size"                 : "1024"
+            "mbed-mqtt.max-packet-size"                 : "1024",
+            "platform.callback-nontrivial"      : true,
+            "platform.minimal-printf-enable-floating-point": true
         },
         "ZEST_CORE_STM32L4A6RG": {
-            "atmel-rf.SPI_MOSI"                         : "SPI_MOSI",
-            "atmel-rf.SPI_MISO"                         : "SPI_MISO",
-            "atmel-rf.SPI_SCLK"                         : "SPI_SCK",
-            "atmel-rf.SPI_CS"                           : "SPI_CS",
-            "atmel-rf.SPI_RST"                          : "PWM3_OUT",
-            "atmel-rf.SPI_SLP"                          : "DIO2",
-            "atmel-rf.SPI_IRQ"                          : "PWM1_OUT",
-            "atmel-rf.I2C_SDA"                          : "I2C_SDA",
-            "atmel-rf.I2C_SCL"                          : "I2C_SCL"
+            "atmel-rf.SPI_MOSI"                         : "SPI1_MOSI",
+            "atmel-rf.SPI_MISO"                         : "SPI1_MISO",
+            "atmel-rf.SPI_SCLK"                         : "SPI1_SCK",
+            "atmel-rf.SPI_CS"                           : "SPI1_CS",
+            "atmel-rf.SPI_RST"                          : "PB_0",
+            "atmel-rf.SPI_SLP"                          : "PB_4",
+            "atmel-rf.SPI_IRQ"                          : "PA_10",
+            "atmel-rf.I2C_SDA"                          : "I2C1_SDA",
+            "atmel-rf.I2C_SCL"                          : "I2C1_SCL"
         }
     }
 }

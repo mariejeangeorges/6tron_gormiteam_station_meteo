@@ -29,12 +29,12 @@ namespace {
 static DigitalOut led(LED1);
 static InterruptIn button(BUTTON1);
 
-// Network 
+// Network
 NetworkInterface *network;
 MQTTClient *client;
 
 // MQTT
-//const char* hostname = "fd9f:590a:b158::1";
+// const char* hostname = "fd9f:590a:b158::1";
 const char* hostname = "broker.hivemq.com";
 int port = 1883;
 
@@ -55,7 +55,7 @@ void messageArrived(MQTT::MessageData& md)
     MQTT::Message &message = md.message;
     printf("Message arrived: qos %d, retained %d, dup %d, packetid %d\r\n", message.qos, message.retained, message.dup, message.id);
     printf("Payload %.*s\r\n", message.payloadlen, (char*)message.payload);
-    
+
     // Get the payload string
     char* char_payload = (char*)malloc((message.payloadlen+1)*sizeof(char));
     char_payload = (char *) message.payload;
@@ -105,7 +105,7 @@ static int8_t publish() {
     message.payloadlen = strlen(mqttPayload);
 
     printf("Send: %s to MQTT Broker: %s\n", mqttPayload, hostname);
-    rc = client->publish(MQTT_TOPIC_PUBLISH, message); 
+    rc = client->publish(MQTT_TOPIC_PUBLISH, message);
     if (rc != 0) {
         printf("Failed to publish: %d\n", rc);
         return rc;
@@ -148,11 +148,14 @@ int main()
 
     /* Open TCP Socket */
     TCPSocket socket;
+    SocketAddress address;
+    err = network->gethostbyname(hostname, &address);
+    address.set_port(port);
 
     /* MQTT Connection */
     client = new MQTTClient(&socket);
     socket.open(network);
-    rc = socket.connect(hostname, port);
+    rc = socket.connect(address);
     if(rc != 0){
         printf("Connection to MQTT broker Failed");
         return rc;
@@ -164,17 +167,19 @@ int main()
     data.clientID.cstring = MQTT_CLIENT_ID;
     if (client->connect(data) != 0){
         printf("Connection to MQTT Broker Failed\n");
-    }   
+    }
 
     /* MQTT Subscribe */
     if ((rc = client->subscribe(MQTT_TOPIC_SUBSCRIBE, MQTT::QOS0, messageArrived)) != 0){
         printf("rc from MQTT subscribe is %d\r\n", rc);
-    }    
+    }
 
     yield();
 
     // Yield every 1 second
     id_yield = main_queue.call_every(SYNC_INTERVAL * 1000, yield);
+
+    printf("Connected to MQTT broker");
 
     // Publish
     button.fall(main_queue.event(publish));
