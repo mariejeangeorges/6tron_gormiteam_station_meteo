@@ -19,10 +19,11 @@
 #include <MQTTClientMbedOs.h>
 
 namespace {
-#define MQTT_TOPIC_PUBLISH      "/estia/group1/uplink"
-#define MQTT_TOPIC_SUBSCRIBE    "/estia/group1/downlink"
+#define GROUP_NUMBER            "group2"
+#define MQTT_TOPIC_PUBLISH      "/estia/"GROUP_NUMBER"/uplink"
+#define MQTT_TOPIC_SUBSCRIBE    "/estia/"GROUP_NUMBER"/downlink"
 #define SYNC_INTERVAL           1
-#define MQTT_CLIENT_ID          "6LoWPAN_Node"
+#define MQTT_CLIENT_ID          "6LoWPAN_Node_"GROUP_NUMBER
 }
 
 // Peripherals
@@ -57,10 +58,11 @@ void messageArrived(MQTT::MessageData& md)
     printf("Payload %.*s\r\n", message.payloadlen, (char*)message.payload);
 
     // Get the payload string
-    char* char_payload = (char*)malloc((message.payloadlen+1)*sizeof(char));
-    char_payload = (char *) message.payload;
+    char* char_payload = (char*)malloc((message.payloadlen+1)*sizeof(char)); // allocate the necessary size for our buffer
+    char_payload = (char *) message.payload; // get the arrived payload in our buffer
     char_payload[message.payloadlen] = '\0'; // String must be null terminated
 
+    // Compare our payload with known command strings
     if (strcmp(char_payload, "ON") == 0) {
         led = 1;
     }
@@ -160,7 +162,7 @@ int main()
     socket.open(network);
     rc = socket.connect(address);
     if(rc != 0){
-        printf("Connection to MQTT broker Failed");
+        printf("Connection to MQTT broker Failed\n");
         return rc;
     }
 
@@ -172,17 +174,18 @@ int main()
         printf("Connection to MQTT Broker Failed\n");
     }
 
+    printf("Connected to MQTT broker\n");
+
     /* MQTT Subscribe */
     if ((rc = client->subscribe(MQTT_TOPIC_SUBSCRIBE, MQTT::QOS0, messageArrived)) != 0){
         printf("rc from MQTT subscribe is %d\r\n", rc);
     }
+    printf("Subscribed to Topic: %s\n", MQTT_TOPIC_SUBSCRIBE);
 
     yield();
 
     // Yield every 1 second
     id_yield = main_queue.call_every(SYNC_INTERVAL * 1000, yield);
-
-    printf("Connected to MQTT broker");
 
     // Publish
     button.fall(main_queue.event(publish));
