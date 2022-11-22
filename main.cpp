@@ -79,6 +79,8 @@ void messageArrived(MQTT::MessageData& md)
  *  On error, stop publishing and yielding
  */
 static void yield(){
+    // printf("Yield\n");
+    
     rc = client->yield(100);
 
     if (rc != 0){
