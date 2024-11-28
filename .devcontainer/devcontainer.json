@@ -1,0 +1,14 @@
+{
+    "name": "Mbed OS",
+    "image": "ghcr.io/catie-aq/mbed_docker:master-2022.05.21T04.23.55",
+    // Only for Linux
+    // "mounts": [
+    //     "source=/dev/bus/usb,target=/dev/bus/usb,type=bind"
+    // ],
+    "runArgs": [
+        "--privileged"
+    ],
+    "features": {
+        "ghcr.io/devcontainers-contrib/features/pre-commit:2": {}
+    }
+}
