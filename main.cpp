@@ -19,11 +19,11 @@
 #include <MQTTClientMbedOs.h>
 
 namespace {
-#define GROUP_NUMBER            "group2"
-#define MQTT_TOPIC_PUBLISH      "/estia/"GROUP_NUMBER"/uplink"
-#define MQTT_TOPIC_SUBSCRIBE    "/estia/"GROUP_NUMBER"/downlink"
+#define GROUP_NAME            "ABCD"
+#define MQTT_TOPIC_PUBLISH      "/estia/"GROUP_NAME"/uplink"
+#define MQTT_TOPIC_SUBSCRIBE    "/estia/"GROUP_NAME"/downlink"
 #define SYNC_INTERVAL           1
-#define MQTT_CLIENT_ID          "6LoWPAN_Node_"GROUP_NUMBER
+#define MQTT_CLIENT_ID          "6LoWPAN_Node_"GROUP_NAME
 }
 
 // Peripherals
@@ -35,8 +35,7 @@ NetworkInterface *network;
 MQTTClient *client;
 
 // MQTT
-// const char* hostname = "fd9f:590a:b158::1";
-const char* hostname = "broker.hivemq.com";
+const char* hostname = "test.mosquitto.org";
 int port = 1883;
 
 // Error code
