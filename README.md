@@ -1,79 +1,102 @@
 # Basic MQTT example
-Basic MQTT example
+
+Basic Mbed OS MQTT example.
 
 ## Requirements
+
 ### Hardware requirements
+
 The following boards are required:
-- *List Basic MQTT example hardware requirements here*
+- [Zest_Core_STM32L4A6RG](https://6tron.io/zest_core/zest_core_stm32l4a6rg_3_0_0/)
+- [Zest_Adapter_Shield](https://6tron.io/zest/zest_adapter_shield_1_0_0/)
+- [L-Tek 6LoWPAN Arduino Shield](https://www.l-tek.com/web-shop/l-tek-6lowpan-arduino-shield/)
 
 ### Software requirements
-Basic MQTT example makes use of the following libraries (automatically imported
-by `mbed deploy` or `mbed import`):
-- *List Basic MQTT example software requirements here*
+
+This app makes use of the following libraries:
+- [Mbed MQTT library](https://github.com/ARMmbed/mbed-mqtt/#7fa219e87b3355e8a6fd281659697fe3a0c87630)
+- [Zest_Core_STM32L4A6RG BSP (board support package)](https://github.com/catie-aq/mbed_zest-core-stm32l4a6rg/#e96c03e3644b204a877c24d7988a2c58c61552f8)
 
 ## Usage
-To clone **and** deploy the project in one command, use `mbed import` and skip to the
-target and toolchain definition:
-```shell
-mbed import https://gitlab.com/catie_6tron/basic-mqtt-example.git basic-mqtt-example
-```
 
-Alternatively:
+### Windows
 
-- Clone to "basic-mqtt-example" and enter it:
-  ```shell
-  git clone https://gitlab.com/catie_6tron/basic-mqtt-example.git basic-mqtt-example
-  cd basic-mqtt-example
-  ```
+- Open VS Code IDE.
 
-- Deploy software requirements with:
-  ```shell
-  mbed deploy
-  ```
+- Clone the repository directly in a Dev Container, in the desited volume:
+  `Dev Containers: Clone Repository in Named Container Volume`
 
-- Set Mbed project root path:
-  ```shell
-  mbed config root .
-  ```
+> [!IMPORTANT]
+> Cloning to a container volume in WSL increases massively the performance.
 
-Define your target (eg. `ZEST_CORE_STM32L4A6RG`) and toolchain:
-```shell
-mbed target ZEST_CORE_STM32L4A6RG
-mbed toolchain GCC_ARM
-```
+### Linux
 
-Export to Eclipse IDE with:
-```shell
-mbed export -i eclipse_6tron
-```
+- Clone the project:
+
+    ```shell
+    git clone https://gitlab.com/catie_estia-students/mbed-os-basic-template.git YOUR_PROJECT_NAME
+    cd YOUR_PROJECT_NAME
+    ```
+
+- Open the project in VS Code IDE:
+
+    ```shell
+    cd YOUR_PROJECT_NAME
+    code .
+    ```
+
+- Launch the Dev Container:
+
+    ```
+    Dev Containers: Reopen in Container
+    ```
+
+- In a VS Code terminal, export the project:
+
+    ```shell
+    mbed export -i vscode_gcc_arm
+    ```
+
+## Configure
+
+Edit `main.cpp` to set your `GROUP_NAME`.
+
+The group name is used to select the topics to which the device will subscribe and publish.
 
 ## Working from command line
+
 Compile the project:
+
 ```shell
 mbed compile
 ```
 
 Program the target device (eg. `STM32L4A6RG` for the Zest_Core_STM32L4A6RG) with a J-Link
 debug probe:
+
 ```shell
 python dist/program.py STM32L4A6RG BUILD/ZEST_CORE_STM32L4A6RG/GCC_ARM/basic-mqtt-example.elf
 ```
+## Build and Flash
 
-Debug on the target device (eg. `STM32L4A6RG` for the Zest_Core_STM32L4A6RG) with a
-J-Link debug probe.
+- Compile the project:
 
-- First, start the GDB server:
-  ```shell
-  JLinkGDBServer -device STM32L4A6RG
-  ```
+    ```shell
+    mbed deploy # Deploy the dependencies
+    mbed compile
+    ```
 
-- Then, in another terminal, start the debugger:
-  ```shell
-  arm-none-eabi-gdb BUILD/ZEST_CORE_STM32L4A6RG/GCC_ARM/basic-mqtt-example.elf
-  ```
+- Program the target device with the compiled binary using a J-Link debug probe:
 
-*Note:* You may have to adjust your [GDB auto-loading safe path](https://sourceware.org/gdb/onlinedocs/gdb/Auto_002dloading-safe-path.html#Auto_002dloading-safe-path)
-or disable it completely by adding a .gdbinit file in your $HOME folder containing:
-```conf
-set autoload safe-path /
+    ```shell
+    sixtron_flash
+    ```
+
+## Export to your repository
+
+Modify the remote URL to point to your repository and push the source code:
+
+```shell
+git remote set-url origin YOUR_REPOSITORY_URL
+git push -u origin main
 ```
