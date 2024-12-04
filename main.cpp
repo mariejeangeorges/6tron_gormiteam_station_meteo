@@ -61,6 +61,7 @@ static EventQueue main_queue(32 * EVENTS_EVENT_SIZE);
  *
  *  Print messages received on mqtt topic
  */
+ 
 void blink(){
     led=!led;
 }
@@ -137,7 +138,7 @@ static void yield(){
 
 /*!
  *  \brief Publish data over the corresponding adafruit MQTT topic
- 
+
  */
 static int8_t publish() {
 
