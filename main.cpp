@@ -108,7 +108,8 @@ static void yield(){
  */
 static int8_t publish() {
 
-     
+    
+
     char mqttPayload1[50]; 
     float temperature = sensor.temperature(); 
     sprintf(mqttPayload1, "%.2f", temperature);
@@ -218,7 +219,7 @@ int main()
     data.keepAliveInterval = 25;
     // data.clientID.cstring = MQTT_CLIENT_ID; // À SUPPRIMER
     data.username.cstring = "mariejgs";
-    data.password.cstring = "aio_uxdt15Xo4wNBFPRykdReWe4WYjvd";
+    data.password.cstring = "aio_yALt560etav9NF5bKu97djZRrtUR";
 
     if (client->connect(data) != 0){
         printf("Connection to MQTT Broker Failed\n");
@@ -238,7 +239,7 @@ int main()
     id_yield = main_queue.call_every(SYNC_INTERVAL * 1000, yield);
 
     // Publish la fonction importante
-    ticker.attach(main_queue.event(publish),5s);
+    ticker.attach(main_queue.event(publish),30s);
     button.fall(main_queue.event(publish));
 
     main_queue.dispatch_forever();
