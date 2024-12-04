@@ -29,6 +29,7 @@ namespace {
 #define MQTT_TOPIC_PUBLISH_HUM     "mariejgs/feeds/humidity"
 #define MQTT_TOPIC_PUBLISH_PRESS   "mariejgs/feeds/pressure"
 #define MQTT_TOPIC_SUBSCRIBE       "mariejgs/feeds/led"
+#define MQTT_TOPIC_SUBSCRIBE1       "mariejgs/feeds/alerte"
 #define SYNC_INTERVAL           1
 }
 
@@ -60,6 +61,10 @@ static EventQueue main_queue(32 * EVENTS_EVENT_SIZE);
  *
  *  Print messages received on mqtt topic
  */
+void blink(){
+    led=!led;
+}
+
 void messageArrived(MQTT::MessageData& md)
 {
     MQTT::Message &message = md.message;
@@ -82,7 +87,35 @@ void messageArrived(MQTT::MessageData& md)
         printf("RESETTING ...\n");
         system_reset();
     }
+
 }
+
+void messageAlerte(MQTT::MessageData& md)
+{
+    MQTT::Message &message = md.message;
+    printf("Message arrived: qos %d, retained %d, dup %d, packetid %d\r\n", message.qos, message.retained, message.dup, message.id);
+    printf("Payload %.*s\r\n", message.payloadlen, (char*)message.payload);
+
+    // Get the payload string
+    char* char_payload = (char*)malloc((message.payloadlen+1)*sizeof(char)); // allocate the necessary size for our buffer
+    char_payload = (char *) message.payload; // get the arrived payload in our buffer
+    char_payload[message.payloadlen] = '\0'; // String must be null terminated
+
+    // Compare our payload with known command strings
+    if (strcmp(char_payload, "1") == 0) {
+         ticker.attach(&blink, 500ms); 
+        
+    }
+    else if (strcmp(char_payload, "0") == 0) {
+        ticker.detach();  
+    }
+    else if (strcmp(char_payload, "RESET") == 0) {
+        printf("RESETTING ...\n");
+        system_reset();
+    }
+
+}
+
 
 /*!
  *  \brief Yield to the MQTT client
@@ -104,7 +137,7 @@ static void yield(){
 
 /*!
  *  \brief Publish data over the corresponding adafruit MQTT topic
- *
+ 
  */
 static int8_t publish() {
 
@@ -233,13 +266,18 @@ int main()
     }
     printf("Subscribed to Topic: %s\n", MQTT_TOPIC_SUBSCRIBE);
 
+    if ((rc = client->subscribe(MQTT_TOPIC_SUBSCRIBE1, MQTT::QOS0, messageAlerte)) != 0){
+        printf("rc from MQTT subscribe is %d\r\n", rc);
+    }
+    printf("Subscribed to Topic: %s\n", MQTT_TOPIC_SUBSCRIBE1);
+
     yield();
 
     // Yield every 1 second
     id_yield = main_queue.call_every(SYNC_INTERVAL * 1000, yield);
 
     // Publish la fonction importante
-    ticker.attach(main_queue.event(publish),30s);
+    ticker.attach(main_queue.event(publish),15s);
     button.fall(main_queue.event(publish));
 
     main_queue.dispatch_forever();
