@@ -15,20 +15,29 @@
  * limitations under the License.
  */
 #include "mbed.h"
-#include <nsapi_dns.h>
+#include <nsapi_dns.h> 
 #include <MQTTClientMbedOs.h>
+#include "bme280.h"
+
+using namespace sixtron;
 
 namespace {
-#define GROUP_NAME            "Gormiteam"
-#define MQTT_TOPIC_PUBLISH      "/estia/"GROUP_NAME"/uplink"
-#define MQTT_TOPIC_SUBSCRIBE    "/estia/"GROUP_NAME"/downlink"
+#define GROUP_NAME                 "Gormiteam"
+#define MQTT_TOPIC_PUBLISH         "mariejgs/groups/station-meteo"
+#define MQTT_TOPIC_PUBLISH_TEMP    "mariejgs/feeds/temperature"
+#define MQTT_TOPIC_PUBLISH_HUM     "mariejgs/feeds/humidity"
+#define MQTT_TOPIC_PUBLISH_PRESS   "mariejgs/feeds/pressure"
+#define MQTT_TOPIC_SUBSCRIBE       "mariejgs/feeds/led"
 #define SYNC_INTERVAL           1
-#define MQTT_CLIENT_ID          "6LoWPAN_Node_"GROUP_NAME
 }
 
-// Peripherals
+// Peripherals :
 static DigitalOut led(LED1);
 static InterruptIn button(BUTTON1);
+
+I2C i2c(I2C1_SDA, I2C1_SCL);
+BME280 sensor(&i2c, BME280::I2CAddress::Address1);
+
 
 // Network
 NetworkInterface *network;
@@ -98,21 +107,54 @@ static void yield(){
  */
 static int8_t publish() {
 
-    char *mqttPayload = "Hello from 6TRON";
+     
+    char mqttPayload1[50]; 
+    float temperature = sensor.temperature(); 
+    sprintf(mqttPayload1, "%.2f", temperature);
+
+    char mqttPayload2[50]; 
+    float humidity = sensor.humidity();
+    sprintf(mqttPayload2, "%.2f", humidity);
+
+    char mqttPayload3[50]; 
+    float pressure = sensor.pressure();
+    sprintf(mqttPayload3, "%.2f", pressure);
+
+
 
     MQTT::Message message;
     message.qos = MQTT::QOS1;
     message.retained = false;
     message.dup = false;
-    message.payload = (void*)mqttPayload;
-    message.payloadlen = strlen(mqttPayload);
+    
 
-    printf("Send: %s to MQTT Broker: %s\n", mqttPayload, hostname);
-    rc = client->publish(MQTT_TOPIC_PUBLISH, message);
+    printf("Send: %s to MQTT Broker: %s\n", mqttPayload1, hostname);
+    message.payload = (void*)mqttPayload1;
+    message.payloadlen = strlen(mqttPayload1);
+    rc = client->publish(MQTT_TOPIC_PUBLISH_TEMP, message);
     if (rc != 0) {
         printf("Failed to publish: %d\n", rc);
         return rc;
     }
+
+    printf("Send: %s to MQTT Broker: %s\n", mqttPayload2, hostname);
+    message.payload = (void*)mqttPayload2;
+    message.payloadlen = strlen(mqttPayload2);
+    rc = client->publish(MQTT_TOPIC_PUBLISH_HUM, message);
+    if (rc != 0) {
+        printf("Failed to publish: %d\n", rc);
+        return rc;
+    }
+
+    printf("Send: %s to MQTT Broker: %s\n", mqttPayload3, hostname);
+    message.payload = (void*)mqttPayload3;
+    message.payloadlen = strlen(mqttPayload3);
+    rc = client->publish(MQTT_TOPIC_PUBLISH_PRESS, message);
+    if (rc != 0) {
+        printf("Failed to publish: %d\n", rc);
+        return rc;
+    }
+
     return 0;
 }
 
@@ -121,6 +163,11 @@ static int8_t publish() {
 
 int main()
 {
+    if(!sensor.initialize()){
+        printf("BME280 init error!\n");
+    }
+    sensor.set_sampling();
+    
     printf("Connecting to border router...\n");
 
     /* Get Network configuration */
@@ -170,7 +217,7 @@ int main()
     data.keepAliveInterval = 25;
     // data.clientID.cstring = MQTT_CLIENT_ID; // À SUPPRIMER
     data.username.cstring = "mariejgs";
-    data.password.cstring = "aio_sdmb24MLnzNrKkPgx8qtinWzIzEc";
+    data.password.cstring = "aio_XLXS64FcSqjajdndITqIYz7is5Wd";
 
     if (client->connect(data) != 0){
         printf("Connection to MQTT Broker Failed\n");
