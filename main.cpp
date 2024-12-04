@@ -20,6 +20,7 @@
 #include "bme280.h"
 
 using namespace sixtron;
+Ticker ticker;
 
 namespace {
 #define GROUP_NAME                 "Gormiteam"
@@ -217,7 +218,7 @@ int main()
     data.keepAliveInterval = 25;
     // data.clientID.cstring = MQTT_CLIENT_ID; // À SUPPRIMER
     data.username.cstring = "mariejgs";
-    data.password.cstring = "aio_XLXS64FcSqjajdndITqIYz7is5Wd";
+    data.password.cstring = "aio_uxdt15Xo4wNBFPRykdReWe4WYjvd";
 
     if (client->connect(data) != 0){
         printf("Connection to MQTT Broker Failed\n");
@@ -236,7 +237,8 @@ int main()
     // Yield every 1 second
     id_yield = main_queue.call_every(SYNC_INTERVAL * 1000, yield);
 
-    // Publish
+    // Publish la fonction importante
+    ticker.attach(main_queue.event(publish),5s);
     button.fall(main_queue.event(publish));
 
     main_queue.dispatch_forever();
